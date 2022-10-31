@@ -8,7 +8,7 @@ let usercomments;
 let a;
 let now;
 let c = 0;
-let add_to_cart_button;
+
 
 function starRating(score,a){
     let b = 0;
@@ -33,69 +33,34 @@ function showProductInfo(){
     let htmlContentToAppend = "";
 
             htmlContentToAppend += `
-            <div>   
-                    <div class="row mt-5">
-                        <div class="col-6">
-                            <h2> ${product.name} </h2>
-                        </div>
-                        <div class="col"> 
-                        </div>
-                        <div class="col">
-                        <button id="buy" type="button" class="btn btn-success">Comprar</button>
-                        </div>
-                    </div>
-                    <div class="mt-5">
-                        <hr>
-                        <p><strong> Precio </strong><br>
-                            ${product.currency} ${product.cost}</p>
-                        <p><strong> Descripción </strong>  <br>
-                            ${product.description}</p>
-                    
-                        <p> <strong>Categoría </strong><br>
-                            ${catName}</p>
-                        <p> <strong>Cantidad de vendidos</strong> <br>
-                            ${product.soldCount}</p
-                    </div>
-                    <div class="text-start mt-5">
-                        <p><strong> Imagenes Ilustrativas </strong><br></p>
-                    </div>
-                    <div class="row">
-                        <div id="car" class="col-4">
-                            
-                            </div>
+            <div>
+                <h2> ${product.name} </h2>
+                <hr>
+                <p><strong> Precio </strong><br>
+                ${product.currency} ${product.cost}</p>
+                <br>
+                <p><strong> Descripción </strong>  <br>
+                ${product.description}</p>
+                <br>
+                <p> <strong>Categoría </strong><br>
+                ${catName}</p>
+                <br>
+                <p> <strong>Cantidad de vendidos</strong> <br>
+                ${product.soldCount}</p
+                <br>
+                <p><strong> Imagenes Ilustrativas </strong><br></p>
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+                        <div class="col" id='imgs'> 
                         </div>
                     </div>
+                </div>
             <div>
             `
             document.getElementById("prod_info-list-container").innerHTML = htmlContentToAppend;
-            document.getElementById("car").innerHTML = `
-            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-            <div id="carousel" class="carousel-inner">
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-            `
             product.images.forEach(element => {
-                if (element == product.images[0]){
-                document.getElementById("carousel").innerHTML += `
-                <div class="carousel-item active">
-                        <img src="${element}" class="img-thumbnail d-block w-100">  </img>
-                </div>
+                document.getElementById("imgs").innerHTML += `<img class="img-thumbnail" src="${element}"></img>
                 `
-                } else {
-                    document.getElementById("carousel").innerHTML += `
-                <div class="carousel-item">
-                    <img src="${element}" class="img-thumbnail d-block w-100"> </img>
-                </div>
-                `
-                }
             });
             
        
@@ -197,37 +162,32 @@ function showRelatedProducts(){
         relProd = relatedProds[i];
 
         htmlContentToAppend += `
-        
-            <div onclick="redirect_toProd(${relProd.id})" class="col-3"> 
-                        <img class="img-thumbnail" src="${relProd.image}"></img><br>
+        <div class="row">
+        <div onclick="redirect_toProd(${relProd.id})" class="col-3"> <img class="img-thumbnail" src="${relProd.image}"></img><br>
                             <h4> ${relProd.name} </h4>
-            </div>
-        
+        </div>
+    </div>
     
     `
-    
 
-    document.getElementById("related_products").innerHTML = `
-    <div class="row">
-        ${htmlContentToAppend} 
-        <div class="col-3"> 
-        </div> 
-    </div> `;
+    document.getElementById("related_products").innerHTML = htmlContentToAppend;
 } 
     
 }
 
+
+
 function redirect_toProd(id){
     document.getElementById("comments").innerHTML = "";
     document.getElementById("comment-post").innerHTML = "";
-    document.getElementById("comments").innerHTML = "<h3> Comentarios </h3>";
+    document.getElementById("comments").innerHTML = "<h3> Comentarios </h3><hr>";
 
-         getJSONData('https://japceibal.github.io/emercado-api/products/'+id+'.json').then(function(resultObj){
+         getJSONData(PRODUCT_INFO_URL+id+EXT_TYPE).then(function(resultObj){
             if (resultObj.status === "ok"){
                 product = resultObj.data
                 
                 
-                getJSONData('https://japceibal.github.io/emercado-api/products_comments/'+id+'.json').then(function(resultObj){
+                getJSONData(PRODUCT_INFO_COMMENTS_URL+id+EXT_TYPE).then(function(resultObj){
                     if(resultObj.status === "ok"){
                         comments = resultObj.data
                         showProductInfo();
@@ -244,23 +204,14 @@ function redirect_toProd(id){
 
 }
 
-function add_to_cart(){
-    let add_to_cart_button = document.getElementById("buy");
-
-    add_to_cart_button.addEventListener("click",function(e){
-    localStorage.setItem("product", JSON.stringify(product));
-    window.location = "cart.html"
-
-    })
-}
 
 document.addEventListener("DOMContentLoaded",function(){
-    getJSONData('https://japceibal.github.io/emercado-api/products/'+prodID+'.json').then(function(resultObj){
+    getJSONData(PRODUCT_INFO_URL+prodID+EXT_TYPE).then(function(resultObj){
         if (resultObj.status === "ok"){
             product = resultObj.data
             
             
-            getJSONData('https://japceibal.github.io/emercado-api/products_comments/'+prodID+'.json').then(function(resultObj){
+            getJSONData(PRODUCT_INFO_COMMENTS_URL+prodID+EXT_TYPE).then(function(resultObj){
                 if(resultObj.status === "ok"){
                     deployable();
                     comments = resultObj.data
@@ -268,7 +219,6 @@ document.addEventListener("DOMContentLoaded",function(){
                     showComments();
                     newComments();
                     showRelatedProducts();
-                    add_to_cart();
                 }
             })
             
